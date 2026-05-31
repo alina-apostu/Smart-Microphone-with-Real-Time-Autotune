@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <title>Efecte</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/stil.css" />
+    <!--font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Overlock:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+</head>
+
+<body>
+    <header>
+
+        <nav>
+            <a href="index.html">ACASĂ</a>
+            <a href="efecte.html">EFECTE</a>
+            <a href="contact.html">CONTACT</a>
+        </nav>
+
+
+    </header>
+
+    <main class="continut_main_despre" id="id_main_efecte">
+
+        <div class="container-central">
+            <div class="content">
+                <h1 class="text1_i">Panou Efecte Vocale</h1>
+                <p class="continut2_i">Control integral pentru sunetul ambiental</p>
+            </div>
+            <section class="panel-control">
+                <h2>Consolă de Mixaj</h2>
+
+                <div class="grup-butoane">
+                    <button id="muteBtn" class="btn-mare btn-mute" onclick="toggleMute()">MUTE</button>
+                    <button id="statusBtn" class="btn-mare btn-status" onclick="toggleStatus()">MOD ACTIV</button>
+                </div>
+
+                <hr class="separator">
+
+                <div class="control-selectie">
+                    <label for="tipEfect">Tip Efect Vocal:</label>
+                    <select id="tipEfect" class="select-efect">
+                        <option value="none">Fără Efect (Clean)</option>
+                        <option value="deep">Deep voice</option>
+                        <option value="chipmunk">Chipmunk</option>
+                        <option value="echo">Echo</option>
+                        <option value="robot">Voce Robot</option>
+                    </select>
+                </div>
+
+                <div class="control-intensitate">
+                    <div class="label-procent">
+                        <label>Intensitate Efect:</label>
+                        <span id="valoare">50%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="slider" id="intensitate"
+                        oninput="updateValoare(this.value)">
+                </div>
+            </section>
+
+            <!-- <button onclick="resetPico()" style="background: red; color: white;">SCHIMBĂ REȚEAUA WI-FI</button> -->
+            <div class="setari-retea">
+                <button onclick="activareModConfig()" class="btn-reset">SCHIMBAȚI REȚEAUA WI-FI</button>
+                <p><small>Atenție: Pico se va deconecta și va trebui să vă conectați pe Wi-Fi-ul "Pico-Setup".</small>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy;Audio Master Pro. Toate drepturile rezervate </p>
+    </footer>
+
+    <script>
+
+
+        async function pollStatus() {
+            if (!PICO_IP) return;
+            try {
+                const r = await fetch(`${PICO_IP}/status`);
+                const data = await r.json();
+
+                if (!data.active) {
+                    statusBtn.classList.remove('dezactivat');
+                    statusBtn.innerText = "MOD ACTIV";
+                    muteBtn.classList.remove('disabled');
+                    tipEfectSelect.classList.remove('disabled');
+                } else {
+                    statusBtn.classList.add('dezactivat');
+                    statusBtn.innerText = "MOD INACTIV";
+                    muteBtn.classList.add('disabled');
+                    tipEfectSelect.classList.add('disabled');
+                }
+
+                if (data.muted) {
+                    muteBtn.classList.add('activ');
+                    muteBtn.innerText = "UNMUTE";
+                } else {
+                    muteBtn.classList.remove('activ');
+                    muteBtn.innerText = "MUTE";
+                }
+
+            } catch (e) { }
+
+            setTimeout(pollStatus, 1000);
+        }
+
+        let PICO_IP = null;
+
+
+        function updateLEDs() {
+            // Mute: LED roșu
+            const isMuteActive = muteBtn.classList.contains('activ');
+            controlLED('red', isMuteActive);
+
+            // Mod activ: LED verde
+            const isActive = !statusBtn.classList.contains('dezactivat');
+            controlLED('green', !isActive);
+
+            // Filtru selectat: LED albastru
+            const isFilterSelected = tipEfectSelect.value !== "none";
+            controlLED('blue', isFilterSelected);
+        }
+
+
+
+        async function initpage() {
+            muteBtn = document.getElementById('muteBtn');
+            statusBtn = document.getElementById('statusBtn');
+            tipEfectSelect = document.getElementById('tipEfect');
+            tipEfectSelect.addEventListener('change', () => {
+
+                updateLEDs();
+
+                if(PICO_IP)
+                {
+                    const efectSelectat = tipEfectSelect.value;
+                    fetch(`${PICO_IP}/?efect=${efectSelectat}`)
+                        .then(() => console.log("Efect trimis catre Pico: " + efectSelectat))
+                        .catch(err => console.error("Eroare la trimiterea efectului: ", err));
+                }
+            });
+
+            try {
+                const raspuns = await fetch('/pico-ip');
+                const ipText = await raspuns.text();
+
+
+                if (ipText && ipText !== "necunoscut") {
+                    PICO_IP = ipText;
+                    console.log("Conexiune stabilită cu Pico la: " + PICO_IP);
+                    updateLEDs();
+                    pollStatus();
+
+                }
+                else {
+                    console.log("Pico nu a fost găsit încă. reîncerc în 2 secunde...");
+                    setTimeout(initpage, 2000);
+                }
+
+            } catch (e) {
+                setTimeout(initpage, 2000);
+            }
+
+
+        }
+
+
+        function controlLED(ledId, state) {
+            if (!PICO_IP) {
+                console.log("PICO_IP este null.");
+                return;            // nu trimitem nimic daca nu stim IP ul
+            }
+            fetch(`${PICO_IP}/toggle?led=${ledId}&state=${state ? 'on' : 'off'}`)
+                .catch(err => console.log("Pico nu a răspuns: ", err));
+
+        }
+
+
+
+        function updateValoare(val) {
+            document.getElementById('valoare').innerText = val + "%";
+            // trimitem valoarea catre pico
+            if(PICO_IP)
+            {
+                fetch(`${PICO_IP}/?intensitate=${val}`)
+                    .catch(err => console.log("Eroare la trimiterea intensitatii: ", err));
+            }
+        }
+
+        function toggleMute() {
+
+            const btn = document.getElementById('muteBtn');
+            btn.classList.toggle('activ');
+            btn.innerText = btn.classList.contains('activ') ? "UNMUTE" : "MUTE";
+            updateLEDs();
+        }
+
+        function toggleStatus() {
+            const btn = document.getElementById('statusBtn');
+            btn.classList.toggle('dezactivat');
+            btn.innerText = btn.classList.contains('dezactivat') ? "MOD INACTIV" : "MOD ACTIV";
+            // cand trecem pe inactive, resetam mute si efectul in interfata
+            if(btn.classList.contains('dezactivat'))
+            {
+                muteBtn.classList.remove('activ');
+                muteBtn.innerText = "MUTE";
+                tipEfectSelect.value = "none";
+            } 
+            updateLEDs();
+        }
+
+
+
+        function activareModConfig() {
+            if (confirm("Pico se va reseta. Va trebui să va conectati la Wi-Fi-ul 'Pico-Setup' pentru a continua.")) {
+
+                console.log("-------------RESTARTARE------------")
+                const oldIp = PICO_IP;
+
+                // trimitem comanda de reset catre IP ul actual al Pico
+                fetch(`${oldIp}/intra-in-config`)
+                    .then(() => {
+                        // astept 2 secunde sa se reseteze Pico
+                        alert("Pico se resetează... Te rugăm să te conectezi acum la rețeaua 'Pico-Setup' din setările Wi-Fi ale laptopului.");
+
+
+                        //  redirectionare automata catre IP ul fix de configurare
+                        // utilizatorul nu mai trebuie sa scrie nimic în bara
+                        window.location.href = "http://192.168.4.1";
+
+                    })
+                    .catch(err => {
+
+                        window.location.href = "http://192.168.4.1";
+                    });
+            }
+        }
+
+
+        window.addEventListener("load", initpage);
+    </script>
+</body>
+
+</html>

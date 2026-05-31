@@ -1,0 +1,8 @@
+{
+    "xml.fileAssociations": [
+        {
+            "systemId": "validate.dtd",
+            "pattern": "persoane.xml"
+        }
+    ]
+}

@@ -1,0 +1,1 @@
+C:\Users\alina\AppData\Local\Programs\Python\Python313\python.exe server_web.py

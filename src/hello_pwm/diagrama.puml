@@ -1,0 +1,59 @@
+@startuml
+skinparam handwritten false
+skinparam boxPadding 10
+skinparam componentStyle rectangle
+
+title Diagramă de Obiecte (Runtime) - Audio Master Pro
+
+' Definiții de obiecte cu denumirile tale exacte din cod
+
+object "interfataEfecte : WebPageContext" as Web {
+    window.onload = "initpage()"
+    muteBtn = "[HTMLButtonElement] { innerText: ""MUTE"" }"
+    statusBtn = "[HTMLButtonElement] { innerText: ""MOD ACTIV"" }"
+    tipEfect = "[HTMLSelectElement] { value: ""none"" }"
+    intensitate = "[HTMLInputElement] { value: ""50"" }"
+    PICO_IP = "http://192.168.1.105"
+}
+
+object "serverCentral : PythonServerContext" as Python {
+    global.pico_ip = "http://192.168.1.105"
+    serversocket = "[socket.socket] { fd: 4, type: SOCK_STREAM }"
+    udp_broadcast_socket = "[socket.socket] { fd: 5, type: SOCK_DGRAM }"
+    base_dir = "/../continut"
+}
+
+object "picoMicrophone : PicoHardwareContext" as Pico {
+    g_active_state = "true"
+    g_mute_state = "false"
+    current_effect = "EFFECT_CLEAN"
+    effect_intensity = "0.5f"
+    lwip_http_server = "[PCB] { port: 80, state: LISTEN }"
+    echo_idx = "0"
+    pitch_write_idx = "0"
+    gpio_led_green = "1 (HIGH)"
+    gpio_led_red = "0 (LOW)"
+    gpio_led_blue = "0 (LOW)"
+    gpio_led_yellow = "0 (LOW)"
+}
+
+' Relații și fluxuri între obiecte la rulare
+
+Web --> Python : "1. Cere IP-ul plăcuței\n(GET /pico-ip)"
+Web ..> Python : "2. Descarcă HTML/CSS\n(Compresat Gzip pe port 5678)"
+
+Pico ==> Python : "3. Trimite Broadcast UDP\n'PICO_HERE' la port 5679"
+note on link
+  Actualizează variabila globală
+  pico_ip din serverul Python
+end note
+
+Web ===> Pico : "4. Control direct HTTP\n(fetch: PICO_IP/?efect=echo)"
+note on link
+  Ocolește serverul Python pentru
+  a asigura latență minimă de control
+end note
+
+Web <==> Pico : "5. Sincronizare stări\n(Long Polling la 1s pe /status)"
+
+@enduml

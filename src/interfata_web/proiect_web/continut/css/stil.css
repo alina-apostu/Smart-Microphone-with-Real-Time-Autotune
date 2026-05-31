@@ -1,0 +1,297 @@
+body 
+{
+    margin: 0px;
+    /*padding: 0px;*/
+    background-color: #2C372A;
+    color: #F1F2ED;
+    /*font-family: "Overlock", sans-serif;*/
+
+}
+
+html 
+{
+    scroll-behavior: smooth;
+}
+
+
+
+button, input, select, textarea 
+{
+    font-family: inherit;
+}
+
+.sectiune1_index 
+{
+    width: 100%;
+    height: 100vh;
+
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../imagini/music3.jpg');
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
+}
+
+.sectiune1_contact
+{
+    width: 100%;
+    height: 100vh;
+
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../imagini/music1.jpg');
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+
+}
+
+
+header nav 
+{
+    position: fixed;
+    top: 10px;
+    width: 90vw;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #2C372A;
+    padding: 10px 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-around;
+    z-index: 9999;
+    /*pentru a sta deasupra oricarui element*/
+    border: 2px solid #182c25;
+
+}
+
+header nav a 
+{
+    text-decoration: none;
+    background-color: #F1F2ED;
+    color: #2C372A;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+a 
+{
+    text-decoration: none;
+    color: #AD7F62;
+}
+
+
+nav a:hover 
+{
+    background-color: #2C372A;
+    color: #F1F2ED;
+
+}
+
+
+
+.text1_i 
+{
+    font-size: 60px;
+    font-weight: 200;
+    margin: 0;
+    /*ptc h1 avea deja margine implicit*/
+    letter-spacing: 5px;
+}
+
+.continut2_i 
+{
+    font-style: italic;
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+.cutie-transparenta-text
+{
+    background-color: rgba(44, 55, 42, 0.7);
+    width: 80vw;
+    margin: 0 auto; /* se centreaza orizontal*/
+    padding: 3vw 5vw;
+    border-radius: 10px;
+    backdrop-filter: blur(1px);
+}
+
+.btn1_i 
+{
+    /*display: inline-block;*/
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 20px;
+    padding: 12px 30px;
+    /* border: 5px solid #AD7F62;*/
+    border-radius: 25px;
+    background-color: #F1F2ED;
+    color: #AD7F62;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn1_i:hover
+{
+    transform: scale(1.20);
+    background-color: #AD7F62;
+    color: #F1F2ED;
+}
+
+.continut_main_i 
+{
+    padding: 60px 10%;
+    text-align: left;
+    border-top: 10px solid #AD7F62;
+    margin: 0 auto;
+
+}
+
+.continut_main_i h1
+{
+    text-align: center;
+}
+
+main h2 
+{
+    font-size: 32px;
+    margin-bottom: 30px;
+    font-weight: 200;
+}
+
+main p 
+{
+    font-size: 18px;
+}
+
+main div h1 
+{
+    font-size: 42px;
+}
+
+
+/*pagina EFECTE*/
+
+
+.continut_main_despre {
+    width: 100%;
+    min-height: 100vh;
+
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../imagini/music4.jpg');
+    background-size: cover;
+    background-position: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    padding-top: 150px;
+    padding-bottom: 50px;
+    box-sizing: border-box;
+}
+
+.btn-reset
+{
+    padding: 10px 20px;
+    background-color: #919793;
+    color: #182c25;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-reset:hover
+{
+    background-color: #182c25;
+    color: #919793;
+    transform: scale(1.20);
+}
+
+.grup-butoane
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin: 20px 0px;
+}
+
+.btn-mare
+{
+    width: 100%;
+    max-width: 250px;
+    height: 80px;
+    padding: 15px;
+    font-size: 23px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-mare:hover
+{
+    transform: scale(1.20);
+}
+
+.btn-mute, .btn-status
+{
+    background-color: #919793;
+    color: #182c25;
+}
+
+.btn-mute.activ, .btn-status.dezactivat
+{
+    background-color: #182c25;
+    color: #919793;
+}
+
+
+.continut_central
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+}
+
+.panel-control
+{
+    background-color: rgba(44, 55, 42, 0.7);
+    padding: 40px;
+    border-radius: 15px;
+    width: 80vw;
+    max-width: 600px;
+    backdrop-filter: blur(1px);
+    box-sizing: border-box;
+    margin: 20px auto;
+}
+
+footer
+{
+    text-align: center;
+}
+
+.select-efect
+{
+    padding: 8px;
+}

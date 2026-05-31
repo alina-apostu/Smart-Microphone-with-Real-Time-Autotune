@@ -1,0 +1,41 @@
+.program audio_i2s
+.side_set 2 ;rezerv 2 pini pt BCLK și WSEL
+
+; Pinul +0: Data (DIN)
+; Pinul +1: BCLK (Bit Clock)
+; WSEL (Word Select) este gestionat prin side set (bitul de sus al side set)
+;0bXY X control WSEL, y conrtol BCLK
+
+public main:
+    set x, 14           side 0b01 ; canal stanga: WSEL jos (0), BCLK sus (1), pregatim transmisia pt canal stg
+left_data:
+    out pins, 1         side 0b00 ; trimite bit, BCLK jos , DAC ul citeste cand BLCK coboara
+    jmp x-- left_data   side 0b01 ; BCLK sus, repetă de 15 ori
+    out pins, 1         side 0b10 ; ultimul bit, trimite al 16 lea bit, WSEL se schimbă sus (1) anuntand ca urmeaza transmitere pe canal dreapta
+
+    set x, 14           side 0b11 ; canal Dreapta: WSEL sus (1), BCLK sus (1)
+right_data:
+    out pins, 1         side 0b10 ; trimite bit, BCLK jos
+    jmp x-- right_data  side 0b11 ; bCLK sus, repetă de 15 ori
+    out pins, 1         side 0b00 ; ultimul bit, inapoi la început ptc ruleaza la infinit
+
+% c-sdk {
+static inline void audio_i2s_program_init(PIO pio, uint sm, uint offset, uint data_pin, uint sclk_pin, float div) {
+    pio_sm_config config = audio_i2s_program_get_default_config(offset);
+
+    sm_config_set_out_pins(&config, data_pin, 1);// cand scriu out pins sa trimit pe acest pin de date (data_pin)
+    sm_config_set_sideset_pins(&config, sclk_pin);
+    sm_config_set_out_shift(&config, false, true, 32); //MSb first, autopull pe tru, 32 biti din memorie
+    sm_config_set_clkdiv(&config, div); //viteza executie a sm
+
+    pio_gpio_init(pio, data_pin);
+    pio_gpio_init(pio, sclk_pin); //BLCK
+    pio_gpio_init(pio, sclk_pin + 1); // WSEL este pinul imediat urmator dupa BCLK
+    
+    pio_sm_set_consecutive_pindirs(pio, sm, data_pin, 1, true); //data_pin ca iesire
+    pio_sm_set_consecutive_pindirs(pio, sm, sclk_pin, 2, true); //pinii BLCK si WSEL ca iesire
+
+    pio_sm_init(pio, sm, offset, &config);//incarc configuratia in registrele hardware ale sm
+    pio_sm_set_enabled(pio, sm, true); //start
+}
+%}
